@@ -1,9 +1,9 @@
 export interface UserModelInterface {
-    create(user: Omit<User, "id">): void
-    read(user: Partial<User>):  Array<User>
-    update(id: number, user: Partial<User>): void
-    delete(id: number): void
-    comparePassword(password: string, hash: string): boolean
+    create(user: Omit<User, "id">): Promise<void>
+    read(user: Partial<User>):  Promise<Array<User>>
+    update(id: number, user: Partial<User>): Promise<void>
+    delete(id: number): Promise<void>
+    comparePassword(password: string, hash: string): Promise<boolean>
 }
 
 export interface User {

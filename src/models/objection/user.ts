@@ -1,6 +1,8 @@
 import Model from "../../db/objection/index";
+import { UserModelInterface, User as UserInterface } from "../interface/user";
+import argon2 from "argon2";
 
-export class User extends Model {
+export class User extends Model implements UserInterface {
     email: string
     password: string
     id: number
@@ -18,5 +20,34 @@ export class User extends Model {
                 password: { type: "string" }
             }
         }
+    }
+}
+
+
+export class UserModel implements UserModelInterface {
+    user: typeof User
+    constructor(userModel: typeof User) {
+        this.user = userModel;
+    }
+
+    async create(userData: Omit<UserInterface, "id">) {
+        userData.password = await argon2.hash(userData.password);
+        await this.user.query().insert(userData);
+    }
+
+    read(partialUser: Partial<UserInterface>) {
+        return this.user.query().where(partialUser)
+    }
+
+    async update(id: number, partialUser: Partial<UserInterface>) {
+        await this.user.query().findById(id).patch(partialUser);
+    }
+
+    async delete(id: number) {
+       await this.user.query().deleteById(id)
+    }
+    
+    comparePassword(password: string, hash: string) {
+        return argon2.verify(hash, password);
     }
 }
