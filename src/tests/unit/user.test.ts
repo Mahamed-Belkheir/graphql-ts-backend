@@ -2,10 +2,10 @@ import { User as UserInterface } from "../../models/interface/user"
 import { User, UserModel } from "../../models/objection/user"
 import { QueryBuilder } from "objection";
 import { UserController } from "../../controllers/user";
-import { EmailAlreadyRegistered } from "../../exceptions/user";
+import { EmailAlreadyRegistered, UserNotFound, InvalidCredentials } from "../../exceptions/user";
 
 function setResult(result: Array<UserInterface>) {
-    User.query = () => QueryBuilder.forClass(User).resolve(result) as any;
+    User.query = () => { return QueryBuilder.forClass(User).resolve(result) as any };
 }
 
 const MockModel = new UserModel(User);
@@ -13,26 +13,40 @@ MockModel.comparePassword = async (password: string, hash: string) => password =
 
 const MockController = new UserController(MockModel);
 
-test("User sign up", async () => {
-    // sign up works on proper data
-    setResult([] as any)
-    await MockController.signUp({email: "bob", password: "password"})
-    
-
-    // sign up fails on duplicate email
-    // setResult([{id: 1, email:"bob", password: "password"}])
-    
-    MockController.signUp({email: "bob", password: "password"})
-    .catch(e => {
-        expect(e).toBeInstanceOf(EmailAlreadyRegistered);
-    })
-    
+test("User sign up works on unique email", async () => {
+    setResult([])
+    await MockController.signUp({email: "bob@gmail.com", password: "password"})
 })
 
-// test("User sign in", async () => {
-//     // sign in fails on missing user
+test("User sign up fails on duplicate email", async () => {
+    setResult([{id: 1, email:"bob", password: "password"}])
+    try {
+        await MockController.signUp({email: "bob", password: "password"})
+    } catch(e) {
+        expect(e).toBeInstanceOf(EmailAlreadyRegistered);
+    }
+})
 
-//     // sign in fails on incorrect password
+test("User sign in fails on missing user", async () => {
+    setResult([])
+    try {
+        await MockController.signIn({email: "bob", password:"password"})
+    } catch(e) {
+        expect(e).toBeInstanceOf(UserNotFound)
+    }
+})
 
-//     // sign in works on proper credentials
-// })
+
+test("User sign in fails on incorrect password", async () => {
+    setResult([{id: 1, email: "bob", password:"password123"}])
+    try {
+        await MockController.signIn({email: "bob", password:"password"})
+    } catch(e) {
+        expect(e).toBeInstanceOf(InvalidCredentials)
+    }
+})
+
+test("User sign in works on correct password", async () => {
+    setResult([{id: 1, email: "bob", password:"password"}])
+    await MockController.signIn({email: "bob", password:"password"})
+})

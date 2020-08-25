@@ -35,8 +35,8 @@ export class UserModel implements UserModelInterface {
         await this.user.query().insert(userData);
     }
 
-    read(partialUser: Partial<UserInterface>) {
-        return this.user.query().where(partialUser)
+    async read(partialUser: Partial<UserInterface>) {
+        return this.user.query().where(partialUser);
     }
 
     async update(id: number, partialUser: Partial<UserInterface>) {
@@ -44,7 +44,7 @@ export class UserModel implements UserModelInterface {
     }
 
     async delete(id: number) {
-       await this.user.query().deleteById(id)
+       await this.user.query().deleteById(id);
     }
     
     comparePassword(password: string, hash: string) {
