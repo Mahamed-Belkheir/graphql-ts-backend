@@ -18,3 +18,10 @@ export class UserNotFound extends Error {
         super("User was not found");
     }
 }
+
+export class UserDoesNotOwnResource extends Error {
+    statusCode = 403
+    constructor() {
+        super("User does not have access to this resource");
+    }
+}

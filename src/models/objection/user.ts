@@ -6,6 +6,7 @@ export class User extends Model implements UserInterface {
     email: string
     password: string
     id: number
+    username: string
 
     static get tableName() {
         return "users";
@@ -17,7 +18,8 @@ export class User extends Model implements UserInterface {
             properties: {
                 id: { type: "integer" },
                 email: { type: "string" },
-                password: { type: "string" }
+                password: { type: "string" },
+                username: { type: "string" }
             }
         }
     }

@@ -15,13 +15,13 @@ const MockController = new UserController(MockModel);
 
 test("User sign up works on unique email", async () => {
     setResult([])
-    await MockController.signUp({email: "bob@gmail.com", password: "password"})
+    await MockController.signUp({username: "bob", email: "bob@gmail.com", password: "password"})
 })
 
 test("User sign up fails on duplicate email", async () => {
-    setResult([{id: 1, email:"bob", password: "password"}])
+    setResult([{id: 1, username: "bob", email:"bob", password: "password"}])
     try {
-        await MockController.signUp({email: "bob", password: "password"})
+        await MockController.signUp({username: "bob",email: "bob", password: "password"})
     } catch(e) {
         expect(e).toBeInstanceOf(EmailAlreadyRegistered);
     }
@@ -30,23 +30,22 @@ test("User sign up fails on duplicate email", async () => {
 test("User sign in fails on missing user", async () => {
     setResult([])
     try {
-        await MockController.signIn({email: "bob", password:"password"})
+        await MockController.signIn({username: "bob",email: "bob", password:"password"})
     } catch(e) {
         expect(e).toBeInstanceOf(UserNotFound)
     }
 })
 
-
 test("User sign in fails on incorrect password", async () => {
-    setResult([{id: 1, email: "bob", password:"password123"}])
+    setResult([{id: 1,username: "bob", email: "bob", password:"password123"}])
     try {
-        await MockController.signIn({email: "bob", password:"password"})
+        await MockController.signIn({username: "bob",email: "bob", password:"password"})
     } catch(e) {
         expect(e).toBeInstanceOf(InvalidCredentials)
     }
 })
 
 test("User sign in works on correct password", async () => {
-    setResult([{id: 1, email: "bob", password:"password"}])
-    await MockController.signIn({email: "bob", password:"password"})
+    setResult([{id: 1,username: "bob", email: "bob", password:"password"}])
+    await MockController.signIn({username: "bob",email: "bob", password:"password"})
 })
